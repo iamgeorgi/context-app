@@ -30,3 +30,65 @@ useEffect function can be invoked during a component beign rendered or by data b
       useEffect(() => {
         console.log('useEffect hook ran again > songs');
       }, [songs]); // our useEffect function listens for changes in songs data, the the declaration in the function is beign returned
+
+
+Why we cant use hooks inside loops or conditionals
+Why we cant you if, else conditionals and functions inside jsx {} brackets?
+
+## useContext
+It's a hook for using context provider between components.
+
+ ### Initialize Provider Component
+
+    import React, { createContext, useState } from 'react';
+    
+    export const BookContext = createContext();
+    
+    const BookContextProvider = (props) => {
+      const [books, setBooks] = useState([
+        {title: 'name of the wind', id: 1},
+        {title: 'the way of kings', id: 2},
+        {title: 'the final empire', id: 3},
+        {title: 'the hero of ages', id: 4}
+      ]);
+    
+      const addBooks = () => {
+        setBooks([...books, {title: 'new book', id: 5}])
+      }
+    
+      return ( 
+        <BookContext.Provider value={{books, addBooks}}>
+          {props.children}
+        </BookContext.Provider>
+       );
+    }
+     
+    export default BookContextProvider;
+
+
+### Wrap components that you would like to provide this context
+          <BookContextProvider>
+            <Navbar />
+            <BookList />
+            <SongList />
+            <ThemeToggle />
+          </BookContextProvider>
+### Use the useContext hook inside component that you want to consume the data
+
+    import React, { useContext } from 'react';
+    
+    const BookList = () => {
+      const { isLightTheme, light, dark } = useContext(ThemeContext);
+      const { books, addBooks } = useContext(BookContext);
+      const theme = isLightTheme ? light : dark;
+      return (
+        <div className="book-list" style={{ color: theme.synthax, background: theme.bg }}>
+          <ul>
+          {books.map(book => {
+            return <li style={{ background: theme.ui }} key={book.id}>{book.title}</li>
+          })}
+          </ul>
+          <button onClick={addBooks}>Add book</button>
+        </div>
+      );
+    }
