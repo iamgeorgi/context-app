@@ -5,7 +5,6 @@ import { ThemeContext } from '../contexts/ThemeContext';
 const BookList = () => {
   const { isLightTheme, light, dark } = useContext(ThemeContext);
   const { books, addBooks } = useContext(BookContext);
-  console.log(books);
   const theme = isLightTheme ? light : dark;
   return (
     <div className="book-list" style={{ color: theme.synthax, background: theme.bg }}>
