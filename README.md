@@ -92,3 +92,87 @@ It's a hook for using context provider between components.
         </div>
       );
     }
+## useReducer
+useReducer hook reduces all the functions that manage the state into a single function. It can be used instead of useState to handle more complex state cases.
+### 1. First you need to initialize the reducer function and add all the functions, you want to use
+
+    export const bookReducer = (state, action) => {
+      switch (action.type) {
+        case 'ADD_BOOK':
+          return [...state, {
+            title: action.book.title,
+            author: action.book.author,
+            id: uuidv4()
+          }]
+        case 'REMOVE_BOOK':
+          return state.filter(book => book.id !== action.book.id)
+        default:
+          return state;
+      }
+    }
+***state - contains the whole data***
+
+    [
+        {
+            "title": "daasddsa",
+            "author": "daassad",
+            "id": "598c5f45-6e5a-4071-8239-4cb1b18553e1"
+        },
+        {
+            "title": "asdasdas",
+            "author": "dsaasdads",
+            "id": "1613b7ac-59a2-4838-a4b9-fbebd6bfd564"
+        },
+        {
+            "title": "asadsdas",
+            "author": "dasadsads",
+            "id": "74aeb4ad-a614-4ef8-8342-a65a8f1e5ce7"
+        }
+    ]
+***action - contains info for the current action of the user, for example user adds a new book***
+
+    {
+        "type": "ADD_BOOK",
+        "book": {
+            "title": "daaddas",
+            "author": "dasda"
+        }
+    }
+### 2. Then you can call useReducer hook whanever you want to manage the state, for example in Context provider
+
+    const BookContextProvider = (props) => {
+      const [books, dispatch] = useReducer(bookReducer, localStorage.getItem('books') ? JSON.parse(localStorage.getItem('books')) : []);
+      useEffect(() => {
+        localStorage.setItem('books', JSON.stringify(books))
+      }, [books]);
+    
+      return (
+        <BookContext.Provider value={{books, dispatch}}>
+          { props.children }
+        </BookContext.Provider>
+      )
+    }
+
+*Let's have a closer look at calling the useReducer hook*
+
+    const [books, dispatch] = useReducer(bookReducer, localStorage.getItem('books') ? JSON.parse(localStorage.getItem('books')) : []);
+
+`books` - is the initial state that we can use wanever we want
+`dispatch` - is the following function that can manage and change this state
+
+### 3. Now you can use dispatch function to change the data inside books
+
+    const BookDetails = ({ book }) => {
+      const { dispatch } = useContext(BookContext);
+      return ( 
+        <li onClick={() => dispatch({ type: 'REMOVE_BOOK', book: { id: book.id }})}>
+          <div className="title">{ book.title }</div>
+          <div className="author">{ book.author }</div>
+        </li>
+       );
+    }
+*This component removes a single book on event click.*
+
+    dispatch({ type: 'REMOVE_BOOK', book: { id: book.id }})
+`type` - refers to action we specified inside switch/case statement in bookReducer component 
+`book` - refers to the action parameter parameter
